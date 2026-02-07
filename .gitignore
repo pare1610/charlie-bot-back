@@ -4,6 +4,10 @@
 /build
 /auth_info
 
+# Service account credentials - NEVER commit these
+*-*.json
+charlie-bot-calendar-*.json
+
 # Logs
 logs
 *.log

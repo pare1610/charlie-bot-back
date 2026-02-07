@@ -9,12 +9,14 @@ export class CalendarService {
   private auth: any;
 
   constructor(private configService: ConfigService) {
-    this.auth = new google.auth.JWT(
-      this.configService.get('GOOGLE_SERVICE_ACCOUNT_EMAIL'),
-      null,
-      this.configService.get('GOOGLE_PRIVATE_KEY').replace(/\\n/g, '\n'),
-      ['https://www.googleapis.com/auth/calendar']
-    );
+    const serviceAccountEmail = this.configService.get<string>('GOOGLE_SERVICE_ACCOUNT_EMAIL');
+    const privateKey = this.configService.get<string>('GOOGLE_PRIVATE_KEY')?.replace(/\\n/g, '\n');
+
+    this.auth = new google.auth.JWT({
+      email: serviceAccountEmail,
+      key: privateKey,
+      scopes: ['https://www.googleapis.com/auth/calendar'],
+    });
   }
 
   async checkAvailability(start: Date, end: Date): Promise<boolean> {
@@ -27,7 +29,7 @@ export class CalendarService {
           items: [{ id: 'primary' }],
         },
       });
-      const busy = response.data.calendars['primary'].busy || [];
+      const busy = response.data.calendars?.['primary']?.busy || [];
       return busy.length === 0;
     } catch (error) {
       this.logger.error('Error checking availability', error);

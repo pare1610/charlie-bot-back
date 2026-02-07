@@ -45,7 +45,7 @@ export class WhatsappService implements OnModuleInit {
   }
 
   private async handleMessages(msg: proto.IWebMessageInfo) {
-    const jid = msg.key.remoteJid;
+    const jid = msg.key?.remoteJid;
     const text = msg.message?.conversation || msg.message?.extendedTextMessage?.text;
     if (!jid || !text) return;
 
