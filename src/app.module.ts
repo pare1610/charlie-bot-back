@@ -1,12 +1,15 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { WhatsappService } from './whatsapp/whatsapp.service';
-import { CalendarService } from './calendar/calendar.service';
+import { AuthModule } from './auth/auth.module';
+import { CalendarModule } from './calendar/calendar.module';
+import { WhatsappModule } from './whatsapp/whatsapp.module';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    AuthModule,
+    CalendarModule,
+    WhatsappModule,
   ],
-  providers: [WhatsappService, CalendarService],
 })
 export class AppModule {}

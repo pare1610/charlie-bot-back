@@ -1,12 +1,18 @@
 # compiled output
 /dist
 /node_modules
-/build
-/auth_info
+build/
 
-# Service account credentials - NEVER commit these
-*-*.json
-charlie-bot-calendar-*.json
+# Authentication & Credentials - NEVER commit these
+/auth_info/*
+!auth_info/.gitkeep
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+creds.json
+oauth-token.json
 
 # Logs
 logs

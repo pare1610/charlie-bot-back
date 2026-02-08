@@ -75,7 +75,20 @@ export class WhatsappService implements OnModuleInit {
       const start = parsed[0].start.date();
       const end = new Date(start.getTime() + 60 * 60 * 1000); // 1 hora
 
-      const isOk = await this.calendarService.checkAvailability(start, end);
+      let isOk = false;
+      try {
+        isOk = await this.calendarService.checkAvailability(start, end);
+      } catch (err: any) {
+        const reason = err?.message || '';
+        this.logger.error('Error verificando disponibilidad:', reason);
+        if (reason.includes('Usuario no autenticado') || reason.includes('/auth/login')) {
+          await this.sock.sendMessage(jid, { text: '⚠️ El bot no está autenticado con Google Calendar. Por favor autoriza visitando: http://localhost:3000/auth/login' });
+          return;
+        }
+        await this.sock.sendMessage(jid, { text: '❌ Error verificando disponibilidad. Intenta más tarde.' });
+        return;
+      }
+
       if (isOk) {
         this.tempData.set(jid, { start, end });
         this.userState.set(jid, 'AWAITING_NAME');
@@ -93,12 +106,35 @@ export class WhatsappService implements OnModuleInit {
     }
 
     else if (state === 'AWAITING_EMAIL') {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(text)) {
+        await this.sock.sendMessage(jid, { text: '❌ Por favor, escribe un correo electrónico válido.\n_(Ej: usuario@ejemplo.com)_' });
+        return;
+      }
+
+      // Extraer número telefónico del JID (formato: "573168641671@s.whatsapp.net")
+      const phoneNumber = jid.split('@')[0];
+
       const data = this.tempData.get(jid);
-      await this.calendarService.createEvent(`Cita: ${data.name}`, data.start, data.end, text);
-      
-      this.userState.delete(jid);
-      this.tempData.delete(jid);
-      await this.sock.sendMessage(jid, { text: `🎊 ¡Listo! Cita agendada. Revisa tu correo electrónico.` });
+      try {
+        await this.calendarService.createEvent(
+          `Cita: ${data.name}`,
+          data.start,
+          data.end,
+          text,
+          phoneNumber,
+          data.name,
+        );
+        
+        this.userState.delete(jid);
+        this.tempData.delete(jid);
+        await this.sock.sendMessage(jid, { text: `🎊 ¡Listo! Cita agendada para: *${data.start.toLocaleString()}*\n\n📧 Datos registrados:\n• Nombre: ${data.name}\n• Correo: ${text}\n• Teléfono: ${phoneNumber}\n\n✅ El evento se creó en el calendario. Se envió una confirmación a tu correo.` });
+      } catch (error) {
+        this.logger.error('Error al crear evento:', error);
+        this.userState.delete(jid);
+        this.tempData.delete(jid);
+        await this.sock.sendMessage(jid, { text: '❌ Error al agendar la cita. Por favor, intenta más tarde.' });
+      }
     }
   }
 }
