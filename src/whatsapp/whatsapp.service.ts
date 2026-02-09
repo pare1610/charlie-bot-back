@@ -8,6 +8,7 @@ import makeWASocket, {
 import * as qrcode from 'qrcode-terminal';
 import * as chrono from 'chrono-node';
 import { CalendarService } from '../calendar/calendar.service';
+import { AiService } from '../ai/ai.service';
 
 // Interfaz para los datos de pedidos
 interface PedidoDetalle {
@@ -37,7 +38,10 @@ export class WhatsappService implements OnModuleInit {
   private userState = new Map<string, string>();
   private tempData = new Map<string, any>();
 
-  constructor(private calendarService: CalendarService) {}
+  constructor(
+    private calendarService: CalendarService,
+    private aiService: AiService,
+  ) {}
 
   async onModuleInit() {
     this.startBot();
@@ -176,6 +180,21 @@ export class WhatsappService implements OnModuleInit {
         this.userState.set(jid, 'MAIN_MENU');
       }
     }
+
+    // ... en tu método handleMessages ...
+
+// Si no está en ningún estado específico y no eligió opción 1, 2 o 3
+if (state === 'MAIN_MENU' && !['1', '2', '3'].includes(text)) {
+  
+  // Mostramos que el bot está "escribiendo" para que se vea natural
+  await this.sock.sendPresenceUpdate('composing', jid);
+  
+  const aiResponse = await this.aiService.getAiResponse(text, 'Cliente');
+  
+  await this.sock.sendMessage(jid, { text: aiResponse });
+  return;
+}
+
 
     // FLUJO DE AGENDAMIENTO
     if (text === '2' && state === 'MAIN_MENU') {
