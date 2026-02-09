@@ -71,7 +71,9 @@ export class CalendarService {
         this.logger.error('Error checkAvailability con cuenta de servicio:', msg);
         // Si la cuenta de servicio no tiene acceso al calendario, propagar un mensaje claro
         if (this.serviceAccountEmail) {
-          throw new Error(`La cuenta de servicio ${this.serviceAccountEmail} no tiene acceso al calendario ${this.calendarId}. Comparte tu calendario con esa cuenta y dale permisos para "Hacer cambios en los eventos".`);
+          throw new Error(
+            `La cuenta de servicio ${this.serviceAccountEmail} no tiene acceso al calendario ${this.calendarId}. Comparte tu calendario con esa cuenta y dale permisos para "Hacer cambios en los eventos".`,
+          );
         }
         throw err;
       }
@@ -80,7 +82,9 @@ export class CalendarService {
     // Si no hay cuenta de servicio, usar OAuth2
     if (!this.authService.isAuthenticated()) {
       this.logger.warn('Intento de verificación de disponibilidad sin estar autenticado.');
-      throw new Error('Usuario no autenticado. Por favor, accede a http://localhost:3000/auth/login');
+      throw new Error(
+        'Usuario no autenticado. Por favor, accede a http://localhost:3000/auth/login',
+      );
     }
 
     try {
@@ -134,7 +138,9 @@ export class CalendarService {
     } else {
       // Si no hay cuenta de servicio, usar OAuth2
       if (!this.authService.isAuthenticated()) {
-        throw new Error('Usuario no autenticado. Por favor, accede a http://localhost:3000/auth/login');
+        throw new Error(
+          'Usuario no autenticado. Por favor, accede a http://localhost:3000/auth/login',
+        );
       }
 
       try {

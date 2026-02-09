@@ -25,7 +25,9 @@ export class EmailService {
     const emailPassword = this.configService.get<string>('EMAIL_PASSWORD');
 
     if (!emailUser || !emailPassword) {
-      this.logger.warn('EMAIL_USER o EMAIL_PASSWORD no configurados. Servicio de correo deshabilitado.');
+      this.logger.warn(
+        'EMAIL_USER o EMAIL_PASSWORD no configurados. Servicio de correo deshabilitado.',
+      );
       return;
     }
 

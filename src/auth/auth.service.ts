@@ -16,17 +16,15 @@ export class AuthService {
   constructor(private configService: ConfigService) {
     const clientId = this.configService.get<string>('GOOGLE_CLIENT_ID');
     const clientSecret = this.configService.get<string>('GOOGLE_CLIENT_SECRET');
-    const redirectUrl = this.configService.get<string>('GOOGLE_REDIRECT_URL') || 'http://localhost:3000/auth/callback';
+    const redirectUrl =
+      this.configService.get<string>('GOOGLE_REDIRECT_URL') ||
+      'http://localhost:3000/auth/callback';
 
     if (!clientId || !clientSecret) {
       throw new Error('GOOGLE_CLIENT_ID y GOOGLE_CLIENT_SECRET son requeridos para OAuth');
     }
 
-    this.oauth2Client = new google.auth.OAuth2(
-      clientId,
-      clientSecret,
-      redirectUrl,
-    );
+    this.oauth2Client = new google.auth.OAuth2(clientId, clientSecret, redirectUrl);
 
     // Intenta cargar el token existente
     this.loadToken();
